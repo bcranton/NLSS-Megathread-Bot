@@ -1,14 +1,13 @@
 import requests
 import json
 import time
-from pprint import pprint
+
 import postReddit
 import getSecrets
+
 #from pprint import pprint
 
-print("Starting NLSS monitorting")
-
-channel = "Trihex"
+channel = "Northernlion"
 # channel_id = "14371185"
 headers = {'Client-ID': getSecrets.read("twitchID.txt"), }
 
