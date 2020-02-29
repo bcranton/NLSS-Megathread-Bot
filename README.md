@@ -1,0 +1,1 @@
+This program monitors Northernlion's Twitch channel and posts a megathread with information about his livestream.
