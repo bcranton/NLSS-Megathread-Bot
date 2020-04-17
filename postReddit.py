@@ -1,15 +1,23 @@
+#!/usr/bin/python3
+import os
 from datetime import datetime
 from datetime import date
 import praw
-import getSecrets
 
-reddit = praw.Reddit(client_id=getSecrets.read("redditID.txt"),
-                     client_secret=getSecrets.read("redditSecret.txt"),
-                     password=getSecrets.read("redditPassword.txt"),
+from dotenv import load_dotenv
+load_dotenv()
+reddit_id = os.environ.get("reddit_id")
+reddit_secret = os.environ.get("reddit_secret")
+reddit_password = os.environ.get("reddit_password")
+
+reddit = praw.Reddit(client_id=reddit_id,
+                     client_secret=reddit_secret,
+                     password=reddit_password,
                      user_agent='NLSS Bot by /u/AManNamedLear',
                      username='NorthernlionBot')
 
 sub = "NLSSBotTest"
+
 
 def post(games, vod):
     print(reddit.user.me())
@@ -38,14 +46,21 @@ def constructTitle():
 
 def constructBody(games, vod):
     header = "# Post NLSS Discussion Thread\n\n"
+
+    # Section of the body that contains the docket
     docket = "# Docket"
     for game in games:
         docket = docket + "\n" + "* [" + game + "]"
     docket = docket + "\n\n"
+
+    # Slap in the twitch vod link
     vodText = "# Twitch VOD\n"
     vodText = vodText + "* [Northernlion](" + vod + ")\n\n"
+
+    # Link to past threads
     past = "# Previous Mega Threads\n" + \
         "* [Yeet Yeet](https://www.reddit.com/r/northernlion/search?q=flair%3AMEGA+THREAD&sort=new&restrict_sr=on&t=a)"
+
+    # Mash 'em all together
     body = header + docket + vodText + past
     return body
-

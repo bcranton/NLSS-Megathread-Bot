@@ -1,32 +1,46 @@
+#!/usr/bin/python3
+import os
 import requests
-import json
 import time
-
+import sys
 import postReddit
-import getSecrets
 
-#from pprint import pprint
+from dotenv import load_dotenv
+load_dotenv()
+twitch_id = os.environ.get("twitch_id")
 
-channel = "Northernlion"
-# channel_id = "14371185"
-headers = {'Client-ID': getSecrets.read("twitchID.txt"), }
+
+channel_name = "Northernlion"
+
+headers = {'Client-ID': twitch_id, }
 
 
 def main():
+    print (f"Monitoring {channel_name}")
+    # Init variables to default values
     online = False
     gameArray = []
+
     # Run infinitely, that way its always monitoring for streams
     while True:
         # If the channel is live, we start monitoring for what games they are playing
         if liveCheck():
-            print("Appending game to array")
-            gameArray.append(getGameName(getGameID()))
-            print(f"Appended game to array\n{gameArray}")
+            print("Finding current game...")
+            gameID = getGameID()
+            gameName = getGameName(gameID)
+            gameArray.append(gameName)
+            print(f"Appended {gameName} to array")
             online = True
         elif online:
             # If the channel was online last time we checked but is no longer
             # Wait 2 minutes to make sure it doesn't come back online
-            time.sleep(120)
+            print("Waiting 1 more minute to make sure stream doesn't come back...")
+            for remaining in range(60, 0, -1):
+                sys.stdout.write("\r")
+                sys.stdout.write(f"{remaining} seconds remaining...")
+                sys.stdout.flush()
+                time.sleep(1)
+            print()
             if not liveCheck():
                 # Need to delete "unique" game entries, as sometimes the game being
                 # played at the start is left over from last stream
@@ -40,13 +54,21 @@ def main():
                 print(f"{vod}")
                 print(f"Posting to Reddit")
                 postReddit.post(gameArray, vod)
+
+                # Reset variables
                 gameArray = []
                 online = False
-        time.sleep(60)
+        print("Sleeping for 2 minutes before checking again...")
+        for remaining in range(120, 0, -1):
+            sys.stdout.write("\r")
+            sys.stdout.write(f"{remaining} seconds remaining")
+            sys.stdout.flush()
+            time.sleep(1)
+        print()
 
 
 def liveCheck():
-    params = (('user_login', channel),)
+    params = (('user_login', channel_name),)
     response = requests.get(
         'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
     # If stream is not live, the string array will be empty
@@ -60,7 +82,7 @@ def liveCheck():
 
 def getGameID():
     game_id = None
-    params = (('user_login', channel),)
+    params = (('user_login', channel_name),)
     response = requests.get(
         'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
     game_id = response["data"][0]["game_id"]
@@ -77,18 +99,19 @@ def getGameName(game_id):
 
 
 def getVod():
-    params = (('login', channel),)
+    params = (('login', channel_name),)
+    import pprint
     response = requests.get(
         'https://api.twitch.tv/helix/users', headers=headers, params=params).json()
 
-    user_id = response["data"]["id"]
+    user_id = response["data"][0]["id"]
 
-    params = (('user_id', user_id), ("first", "1"),
-              ("period", "day"), ("sort", "views"))
+    params = (('user_id', user_id), ("period", "day"), ("first", "1"), ("sort", "trending"),)
     response = requests.get(
         'https://api.twitch.tv/helix/videos', headers=headers, params=params).json()
+    pprint.pprint(response)
 
-    vod = response["data"]["url"]
+    vod = response["data"][0]["url"]
     return vod
 
 
@@ -100,10 +123,16 @@ def deleteUnique(gameArray):
 
 
 def deleteRepeats(gameArray):
-    gameArrayEdit = [i for n, i in enumerate(
-        gameArray) if i not in gameArray[:n]]
-    gameArray = gameArrayEdit
-    return gameArray
 
+    # Create an empty list to store unique elements
+    uniqueList = []
 
+    # Iterate over the original list and for each element
+    # add it to uniqueList, if its not already there.
+    for game in gameArray:
+        if game not in uniqueList:
+            uniqueList.append(game)
+
+    # Return the list of unique elements
+    return uniqueList
 main()

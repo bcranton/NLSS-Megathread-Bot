@@ -1,8 +1,3 @@
-redditPassword.txt
-redditID.txt
-redditSecret.txt
-twitchID.txt
-__pycache__/getSecrets.cpython-38.pyc
-__pycache__/postReddit.cpython-38.pyc
-.vscode/settings.json
-.vscode/launch.json
+.env
+.vscode
+__pycache__
