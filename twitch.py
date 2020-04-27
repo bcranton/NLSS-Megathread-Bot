@@ -9,9 +9,9 @@ import postReddit
 from dotenv import load_dotenv
 load_dotenv()
 twitch_id = os.environ.get("twitch_id")
-headers = {'Client-ID': twitch_id, }
-
-
+twitch_access_token = os.environ.get("twitch_access_token")
+headers = {'Authorization' : f"Bearer {twitch_access_token}", 'Client-ID': twitch_id, }
+print(headers)
 def main():
     # Init variables to default values
     Northernlion = stream.Stream("Northernlion", False)
@@ -42,13 +42,14 @@ def main():
             guestGameID = ""
             guestGameName = ""
             for guest in guests:
-                if liveCheck(guest.getName()):
-                    guest.setLive(True)
-                    guestGameID = getGameID(guest.getName())
-                    guestGameName = getGameName(guestGameID)
-                    if guestGameName == gameName:
-                        print(f"{guest.getName()} added to guests")
-                        NLSS.addGuest(guest.getName())
+                if guest not in NLSS.getGuests():
+                    if liveCheck(guest.getName()):
+                        guest.setLive(True)
+                        guestGameID = getGameID(guest.getName())
+                        guestGameName = getGameName(guestGameID)
+                        if guestGameName == gameName:
+                            print(f"{guest.getName()} added to guests")
+                            NLSS.addGuest(guest)
 
         elif Northernlion.getLive():
             # If the channel was online last time we checked but is no longer
