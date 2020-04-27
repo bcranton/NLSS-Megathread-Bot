@@ -11,7 +11,6 @@ load_dotenv()
 twitch_id = os.environ.get("twitch_id")
 twitch_access_token = os.environ.get("twitch_access_token")
 headers = {'Authorization' : f"Bearer {twitch_access_token}", 'Client-ID': twitch_id, }
-print(headers)
 def main():
     # Init variables to default values
     Northernlion = stream.Stream("Northernlion", False)
