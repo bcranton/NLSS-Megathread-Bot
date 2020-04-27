@@ -83,8 +83,10 @@ def main():
                 DanGheesling = stream.Stream("DanGheesling", False)
                 MichaelAlFox = stream.Stream("MichaelAlFox", False)
                 HCJustin = stream.Stream("HCJustin", False)
+                Flackblag = stream.Stream("Flackblag", False)
+
                 guests = [JSmithOTI, Alpacapatrol, DumbDog,
-                          Baertaffy, DanGheesling, MichaelAlFox, HCJustin]
+                          Baertaffy, DanGheesling, MichaelAlFox, HCJustin, Flackblag]
                 NLSS = stream.NLSS([], [])
         print("Sleeping for 2 minutes before checking again...")
         for remaining in range(120, 0, -1):
