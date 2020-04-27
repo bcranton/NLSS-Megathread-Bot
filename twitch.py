@@ -14,7 +14,9 @@ cohosts = ["JSmithOTI",
            "DanGheesling",
            "MichaelAlFox",
            "HCJustin",
-           "Flackblag"]
+           "Flackblag",
+           "Sinvicta"]
+
 
 def main():
     # Init variables to default values
@@ -49,8 +51,8 @@ def main():
         elif online:
             # If the channel was online last time we checked but is no longer
             # Wait 2 minutes to make sure it doesn't come back online
-            print("Waiting 2 more minute to make sure stream doesn't come back...")
-            for remaining in range(120, 0, -1):
+            print("Waiting 3 more minutes to make sure stream doesn't come back...")
+            for remaining in range(180, 0, -1):
                 sys.stdout.write("\r")
                 sys.stdout.write(f"{remaining} seconds remaining...")
                 sys.stdout.flush()
