@@ -19,55 +19,81 @@ reddit = praw.Reddit(client_id=reddit_id,
 sub = "NLSSBotTest"
 
 
+class Construct():
+    def __init__(self, games, vod, guests):
+        self.games = games
+        self.vod = vod
+        self.guests = guests
+        self.constructTitle()
+        self.constructBody()
+
+    def getGames(self):
+        return self.games
+
+    def getVOD(self):
+        return self.vod
+
+    def getGuests(self):
+        return self.guests
+
+    def constructTitle(self):
+        day = datetime.today().strftime('%A')
+        today = date.today().strftime("%B %d, %Y")
+        if day == "Sunday":
+            event = "NLSS Sunday Subscriber Stream Megathread"
+
+        elif day == "Tuesday":
+            event = "NLSS Team Unity Tuesday Megathread"
+
+        else:
+            event = "NLSS " + day + " Megathread"
+        title = event + " -- " + today
+        self.title = title
+
+    def getTitle(self):
+        return self.title
+
+    def constructBody(self):
+        header = "# Post NLSS Discussion Thread\n\n"
+
+        # Section of the body that contains the docket
+        docket = "## Docket\n"
+        games = self.getGames()
+        for game in games:
+            docket = docket + f"* [{game}]\n"
+        docket = docket + "\n\n"
+
+        guestBody = "## Hosts and Guests\n"
+        guestBody = guestBody + \
+            f"* [Northernlion](https://twitch.tv/Northernlion)\n"
+        guests = self.getGuests()
+        if guests:
+            for guest in guests:
+                guestBody = guestBody + \
+                    f"\n[{guest.getName()}]({guest.getLink()})\n"
+
+        # Slap in the twitch vod link
+        vodText = "\n## Twitch VOD\n"
+        vodText = vodText + "* [Northernlion](" + self.getVOD() + ")\n\n"
+
+        # Link to past threads
+        past = "## Previous Mega Threads\n" + \
+            "* [Yeet Yeet](https://www.reddit.com/r/northernlion/search?q=flair%3AMEGA+THREAD&sort=new&restrict_sr=on&t=a)"
+
+        # Mash 'em all together
+        body = header + docket + guestBody + vodText + past
+        self.body = body
+
+    def getBody(self):
+        return self.body
+
+
 def post(games, vod, guests):
     print(reddit.user.me())
     subreddit = reddit.subreddit(sub)
-    title = constructTitle()
-    body = constructBody(games, vod, guests)
-    post = subreddit.submit(title, selftext=body)
+
+    content = Construct(games, vod, guests)
+
+    post = subreddit.submit(content.getTitle(), selftext=content.getBody())
     post.mod.sticky()
     return True
-
-
-def constructTitle():
-    day = datetime.today().strftime('%A')
-    today = date.today().strftime("%B %d, %Y")
-    if day == "Sunday":
-        event = "NLSS Sunday Subscriber Stream Megathread"
-
-    elif day == "Tuesday":
-        event = "NLSS Team Unity Tuesday Megathread"
-
-    else:
-        event = "NLSS " + day + " Megathread"
-    title = event + " -- " + today
-    return title
-
-
-def constructBody(games, vod, guests):
-    header = "# Post NLSS Discussion Thread\n\n"
-
-    # Section of the body that contains the docket
-    docket = "## Docket"
-    for game in games:
-        docket = docket + "\n" + "* [" + game + "]"
-    docket = docket + "\n\n"
-
-    guestBody = "## Hosts and Guests\n"
-    guestBody = guestBody + f"* [Northernlion](https://twitch.tv/Northernlion)\n"
-    if guests:
-        for guest in guests:
-            guestBody = guestBody + f"[{guest.getName()}]({guest.getLink()})\n"
-             
-
-    # Slap in the twitch vod link
-    vodText = "\n## Twitch VOD\n"
-    vodText = vodText + "* [Northernlion](" + vod + ")\n\n"
-
-    # Link to past threads
-    past = "## Previous Mega Threads\n" + \
-        "* [Yeet Yeet](https://www.reddit.com/r/northernlion/search?q=flair%3AMEGA+THREAD&sort=new&restrict_sr=on&t=a)"
-
-    # Mash 'em all together
-    body = header + guestBody + docket + vodText + past
-    return body
