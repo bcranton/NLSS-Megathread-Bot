@@ -15,7 +15,8 @@ cohosts = ["JSmithOTI",
            "MichaelAlFox",
            "HCJustin",
            "Flackblag",
-           "Sinvicta"]
+           "Sinvicta",
+           "CobaltStreak"]
 
 
 def main():
