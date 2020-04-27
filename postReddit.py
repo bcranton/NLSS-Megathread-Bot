@@ -48,12 +48,12 @@ def constructBody(games, vod, guests):
     header = "# Post NLSS Discussion Thread\n\n"
 
     # Section of the body that contains the docket
-    docket = "# Docket"
+    docket = "## Docket"
     for game in games:
         docket = docket + "\n" + "* [" + game + "]"
     docket = docket + "\n\n"
 
-    guestBody = "# Hosts and Guests\n"
+    guestBody = "## Hosts and Guests\n"
     guestBody = guestBody + f"* [Northernlion](https://twitch.tv/Northernlion)\n"
     if guests:
         for guest in guests:
@@ -61,11 +61,11 @@ def constructBody(games, vod, guests):
              
 
     # Slap in the twitch vod link
-    vodText = "\n# Twitch VOD\n"
+    vodText = "\n## Twitch VOD\n"
     vodText = vodText + "* [Northernlion](" + vod + ")\n\n"
 
     # Link to past threads
-    past = "# Previous Mega Threads\n" + \
+    past = "## Previous Mega Threads\n" + \
         "* [Yeet Yeet](https://www.reddit.com/r/northernlion/search?q=flair%3AMEGA+THREAD&sort=new&restrict_sr=on&t=a)"
 
     # Mash 'em all together
