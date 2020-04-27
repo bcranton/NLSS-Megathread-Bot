@@ -20,10 +20,11 @@ sub = "NLSSBotTest"
 
 
 class Construct():
-    def __init__(self, games, vod, guests):
+    def __init__(self, games, vod, guests, clip):
         self.games = games
         self.vod = vod
         self.guests = guests
+        self.clip = clip
         self.constructTitle()
         self.constructBody()
 
@@ -72,6 +73,18 @@ class Construct():
                 guestBody = guestBody + \
                     f"\n[{guest.getName()}]({guest.getLink()})\n"
 
+        # Today's top clip
+        clip = ""
+        try:
+            creator = (self.clip).get("creator_name")
+            url = (self.clip).get("url")
+            title = (self.clip).get("title")
+
+            clip = f"\n## Today's Most Pogged Moment, brought to you by [{creator}](https://twitch.tv/{creator})\n"
+            clip = clip + f"[{title}]({url})\n"
+        except:
+            pass
+
         # Slap in the twitch vod link
         vodText = "\n## Twitch VOD\n"
         vodText = vodText + "* [Northernlion](" + self.getVOD() + ")\n\n"
@@ -81,18 +94,18 @@ class Construct():
             "* [Yeet Yeet](https://www.reddit.com/r/northernlion/search?q=flair%3AMEGA+THREAD&sort=new&restrict_sr=on&t=a)"
 
         # Mash 'em all together
-        body = header + docket + guestBody + vodText + past
+        body = header + docket + guestBody + clip + vodText + past
         self.body = body
 
     def getBody(self):
         return self.body
 
 
-def post(games, vod, guests):
+def post(games, vod, guests, clip):
     print(reddit.user.me())
     subreddit = reddit.subreddit(sub)
 
-    content = Construct(games, vod, guests)
+    content = Construct(games, vod, guests, clip)
 
     post = subreddit.submit(content.getTitle(), selftext=content.getBody())
     post.mod.sticky()

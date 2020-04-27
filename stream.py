@@ -1,3 +1,4 @@
+import datetime
 import requests
 import os
 from dotenv import load_dotenv
@@ -82,7 +83,12 @@ class NLSS():
         return self.guests
 
     def addDocket(self, game):
-        self.docket.append(game)
+        if (self.docket).count(game) == 2:
+            print (f"Not adding {game} to Docket, already in list twice")
+            pass
+        else:
+            print(f"Appended {game} to docket")     
+            self.docket.append(game)
 
     def getDocket(self):
         return self.docket
@@ -127,4 +133,28 @@ class NLSS():
 
         vod = response["data"][0]["url"]
         self.vod = vod
-        return vod
+        self.findClip()    
+
+    def findClip(self):
+        date = datetime.datetime.utcnow() # <-- get current time in UTC
+        date = date + datetime.timedelta(days = -0.5)  # this 12 hours ago
+        date = date.replace(second=0, microsecond=0) # remove seconds
+        date = date.isoformat("T") + "Z" #convert to RFC3339
+    
+        clip = {}
+
+        params = (('login', "Northernlion"),)
+        response = requests.get('https://api.twitch.tv/helix/users', headers=headers, params=params).json()
+        for item in response["data"]:
+            user_id = item["id"]
+
+        params = (('broadcaster_id', user_id),("first", "1"),("started_at", date),)
+        response = requests.get('https://api.twitch.tv/helix/clips', headers=headers, params=params).json()
+        for item in response["data"]:
+            title = item['title']
+            url = item['url']
+            creator_name = item["creator_name"]
+            clip = {"title": title, "url": url, "creator_name": creator_name}
+        self.clip = clip
+    def getClip(self):
+        return self.clip

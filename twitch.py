@@ -6,13 +6,6 @@ import sys
 import stream
 import postReddit
 
-from dotenv import load_dotenv
-load_dotenv()
-twitch_id = os.environ.get("twitch_id")
-twitch_access_token = os.environ.get("twitch_access_token")
-headers = {'Authorization': f"Bearer {twitch_access_token}",
-           'Client-ID': twitch_id, }
-
 # List of possible cohosts
 cohosts = ["JSmithOTI",
            "Alpacapatrol",
@@ -40,7 +33,6 @@ def main():
             Northernlion.setGame()
             game = Northernlion.getGame()
             NLSS.addDocket(game)
-            print(f"Appended {game} to docket")
             print(f"Checking for guests...")
             for guest in guests:
                 if guest not in NLSS.getGuests():
@@ -65,7 +57,6 @@ def main():
                 time.sleep(1)
             print()
             if not Northernlion.liveCheck():
-                online = False
                 # Need to delete "unique" game entries, as sometimes the game being
                 # played at the start is left over from last stream
                 print(f"Cleaning entries from docket\n{NLSS.getDocket()}")
@@ -74,9 +65,10 @@ def main():
                 NLSS.findVOD()
                 print(f"Posting to Reddit")
                 postReddit.post(NLSS.getDocket(),
-                                NLSS.getVOD(), NLSS.getGuests())
+                                NLSS.getVOD(), NLSS.getGuests(), NLSS.getClip())
 
                 # Reset variables
+                online = False
                 for guest in guests:
                     del guest
                 del Northernlion
