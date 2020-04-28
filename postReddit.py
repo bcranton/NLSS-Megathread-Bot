@@ -71,7 +71,7 @@ class Construct():
         if guests:
             for guest in guests:
                 guestBody = guestBody + \
-                    f"\n[{guest.getName()}]({guest.getLink()})\n"
+                    f"\n* [{guest.getName()}]({guest.getLink()})\n"
 
         # Today's top clip
         clip = ""
@@ -80,7 +80,7 @@ class Construct():
             url = (self.clip).get("url")
             title = (self.clip).get("title")
 
-            clip = f"\n## Today's Most Pogged Moment, brought to you by [{creator}](https://twitch.tv/{creator})\n"
+            clip = f"\n##### Today's Most Pogged Moment, brought to you by [{creator}](https://twitch.tv/{creator})\n"
             clip = clip + f"[{title}]({url})\n"
         except:
             pass
