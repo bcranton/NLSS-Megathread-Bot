@@ -1,5 +1,6 @@
 import datetime
 import requests
+import time
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -39,9 +40,14 @@ class Stream():
     def liveCheck(self):
         channel_name = self.getName()
         params = (('user_login', channel_name),)
-        response = requests.get(
-            'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
-        
+        try:
+            response = requests.get(
+                'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
+        except:
+            time.sleep(30)
+            self.live = False
+            return False
+
         # If stream is not live, response will be empty
         if not response["data"]:
             print(f"{channel_name} -- Not live")
@@ -51,15 +57,18 @@ class Stream():
             print(f"{channel_name} -- LIVE")
             self.live = True
             return True
-        
 
     def getGameID(self):
         channel_name = self.getName()
         game_id = None
         params = (('user_login', channel_name),)
-        response = requests.get(
-            'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
-        
+        try:
+            response = requests.get(
+                'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
+        except:
+            time.sleep(30)
+            return False
+
         if not response["data"]:
             return False
         game_id = response["data"][0]["game_id"]
@@ -68,8 +77,12 @@ class Stream():
     def getGameName(self, game_id):
         name = None
         params = (('id', game_id),)
-        response = requests.get(
-            'https://api.twitch.tv/helix/games', headers=headers, params=params).json()
+        try:
+            response = requests.get(
+                'https://api.twitch.tv/helix/games', headers=headers, params=params).json()
+        except:
+            time.sleep(30)
+            return self.game
         # If we get a bad API response, assume the game has not changed
         if not response["data"]:
             return self.game
@@ -95,10 +108,10 @@ class NLSS():
 
     def addDocket(self, game):
         if (self.docket).count(game) == 2:
-            print (f"Not adding {game} to Docket, already in list twice")
+            print(f"Not adding {game} to Docket, already in list twice")
             pass
         else:
-            print(f"Appended {game} to docket")     
+            print(f"Appended {game} to docket")
             self.docket.append(game)
 
     def getDocket(self):
@@ -133,36 +146,61 @@ class NLSS():
     def findVOD(self):
         params = (('user_id', "14371185"), ("period", "day"),
                   ("first", "1"), ("sort", "trending"),)
-        response = requests.get(
-            'https://api.twitch.tv/helix/videos', headers=headers, params=params).json()
+        try:
+            response = requests.get(
+                'https://api.twitch.tv/helix/videos', headers=headers, params=params).json()
+        except:
+            time.sleep(30)
+            self.vod = "https://www.twitch.tv/northernlion/videos"
+            self.findClip()
+            return False
 
         if not response["data"]:
             self.vod = "https://www.twitch.tv/northernlion/videos"
             self.findClip()
+            return False
 
         else:
             vod = response["data"][0]["url"]
             self.vod = vod
-            self.findClip()    
+            self.findClip()
+            return True
 
     def findClip(self):
-        date = datetime.datetime.utcnow() # <-- get current time in UTC
-        date = date + datetime.timedelta(days = -0.5)  # this 12 hours ago
-        date = date.replace(second=0, microsecond=0) # remove seconds
-        date = date.isoformat("T") + "Z" #convert to RFC3339
-    
+        date = datetime.datetime.utcnow()  # <-- get current time in UTC
+        date = date + datetime.timedelta(days=-0.5)  # this 12 hours ago
+        date = date.replace(second=0, microsecond=0)  # remove seconds
+        date = date.isoformat("T") + "Z"  # convert to RFC3339
+
         clip = {}
 
-        params = (('broadcaster_id', "14371185"),("first", "1"),("started_at", date),)
-        response = requests.get('https://api.twitch.tv/helix/clips', headers=headers, params=params).json()
+        params = (('broadcaster_id', "14371185"),
+                  ("first", "1"), ("started_at", date),)
+
+        try:
+            response = requests.get(
+                'https://api.twitch.tv/helix/clips', headers=headers, params=params).json()
+        except:
+            time.sleep(30)
+            clip = {"title": "", "url": "https://www.twitch.tv/northernlion/clips?filter=clips&range=24hr",
+                    "creator_name": ""}
+            self.clip = clip
+            return False
+
         if not response["data"]:
-            self.clip = "https://www.twitch.tv/northernlion/clips?filter=clips&range=24hr"
+            clip = {"title": "", "url": "https://www.twitch.tv/northernlion/clips?filter=clips&range=24hr",
+                    "creator_name": ""}
+            self.clip = clip
+            return False
         else:
             for item in response["data"]:
                 title = item['title']
                 url = item['url']
                 creator_name = item["creator_name"]
-                clip = {"title": title, "url": url, "creator_name": creator_name}
+                clip = {"title": title, "url": url,
+                        "creator_name": creator_name}
             self.clip = clip
+            return True
+
     def getClip(self):
         return self.clip
