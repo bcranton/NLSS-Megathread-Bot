@@ -17,8 +17,12 @@ class Stream():
 
     def setGame(self):
         gameID = self.getGameID()
-        gameName = self.getGameName(gameID)
-        self.game = gameName
+        # if gameID is false (aka if it gets a bad api response), assume the game is the same
+        if not gameID:
+            pass
+        else:
+            gameName = self.getGameName(gameID)
+            self.game = gameName
 
     def getGame(self):
         return self.game
@@ -37,6 +41,11 @@ class Stream():
         params = (('user_login', channel_name),)
         response = requests.get(
             'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
+        
+        # If we get bad API response, assume the stream is offline
+        if response.status != 200:
+            return False
+
         # If stream is not live, the string array will be empty
         live = response["data"]
         if live:
@@ -54,6 +63,9 @@ class Stream():
         params = (('user_login', channel_name),)
         response = requests.get(
             'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
+        
+        if response.status != 200:
+            return False
         game_id = response["data"][0]["game_id"]
         return game_id
 
@@ -62,6 +74,9 @@ class Stream():
         params = (('id', game_id),)
         response = requests.get(
             'https://api.twitch.tv/helix/games', headers=headers, params=params).json()
+        # If we get a bad API response, assume the game has not changed
+        if response.status != 200:
+            return self.game
         name = response["data"][0]["name"]
         return name
 
@@ -120,20 +135,19 @@ class NLSS():
         return uniqueList
 
     def findVOD(self):
-        params = (('login', "Northernlion"),)
-        response = requests.get(
-            'https://api.twitch.tv/helix/users', headers=headers, params=params).json()
-
-        user_id = response["data"][0]["id"]
-
-        params = (('user_id', user_id), ("period", "day"),
+        params = (('user_id', "14371185"), ("period", "day"),
                   ("first", "1"), ("sort", "trending"),)
         response = requests.get(
             'https://api.twitch.tv/helix/videos', headers=headers, params=params).json()
 
-        vod = response["data"][0]["url"]
-        self.vod = vod
-        self.findClip()    
+        if response.status != 200:
+            self.vod = "https://www.twitch.tv/northernlion/videos"
+            self.findClip()
+
+        else:
+            vod = response["data"][0]["url"]
+            self.vod = vod
+            self.findClip()    
 
     def findClip(self):
         date = datetime.datetime.utcnow() # <-- get current time in UTC
@@ -143,18 +157,16 @@ class NLSS():
     
         clip = {}
 
-        params = (('login', "Northernlion"),)
-        response = requests.get('https://api.twitch.tv/helix/users', headers=headers, params=params).json()
-        for item in response["data"]:
-            user_id = item["id"]
-
-        params = (('broadcaster_id', user_id),("first", "1"),("started_at", date),)
+        params = (('broadcaster_id', "14371185"),("first", "1"),("started_at", date),)
         response = requests.get('https://api.twitch.tv/helix/clips', headers=headers, params=params).json()
-        for item in response["data"]:
-            title = item['title']
-            url = item['url']
-            creator_name = item["creator_name"]
-            clip = {"title": title, "url": url, "creator_name": creator_name}
-        self.clip = clip
+        if response.status != 200:
+            self.clip = "https://www.twitch.tv/northernlion/clips?filter=clips&range=24hr"
+        else:
+            for item in response["data"]:
+                title = item['title']
+                url = item['url']
+                creator_name = item["creator_name"]
+                clip = {"title": title, "url": url, "creator_name": creator_name}
+            self.clip = clip
     def getClip(self):
         return self.clip
