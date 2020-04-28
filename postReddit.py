@@ -2,6 +2,7 @@
 import os
 from datetime import datetime
 from datetime import date
+import time
 import praw
 import stream
 from dotenv import load_dotenv
@@ -10,11 +11,6 @@ reddit_id = os.environ.get("reddit_id")
 reddit_secret = os.environ.get("reddit_secret")
 reddit_password = os.environ.get("reddit_password")
 
-reddit = praw.Reddit(client_id=reddit_id,
-                     client_secret=reddit_secret,
-                     password=reddit_password,
-                     user_agent='NLSS Bot by /u/AManNamedLear',
-                     username='NorthernlionBot')
 
 sub = "NLSSBotTest"
 
@@ -102,6 +98,20 @@ class Construct():
 
 
 def post(games, vod, guests, clip):
+    # Make sure we can establish a connection to reddit
+    connected = False
+    while not connected:
+        try:
+            reddit = praw.Reddit(client_id=reddit_id,
+                                client_secret=reddit_secret,
+                                password=reddit_password,
+                                user_agent='NLSS Bot by /u/AManNamedLear',
+                                username='NorthernlionBot')
+            connected = True
+        except:
+            time.sleep(30)
+            pass
+
     print(reddit.user.me())
     subreddit = reddit.subreddit(sub)
 
