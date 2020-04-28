@@ -42,20 +42,16 @@ class Stream():
         response = requests.get(
             'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
         
-        # If we get bad API response, assume the stream is offline
-        if response.status != 200:
-            return False
-
-        # If stream is not live, the string array will be empty
-        live = response["data"]
-        if live:
-            print(f"{channel_name} -- LIVE")
-            self.live = True
-            return True
-        else:
+        # If stream is not live, response will be empty
+        if not response["data"]:
             print(f"{channel_name} -- Not live")
             self.live = False
             return False
+        else:
+            print(f"{channel_name} -- LIVE")
+            self.live = True
+            return True
+        
 
     def getGameID(self):
         channel_name = self.getName()
@@ -64,7 +60,7 @@ class Stream():
         response = requests.get(
             'https://api.twitch.tv/helix/streams', headers=headers, params=params).json()
         
-        if response.status != 200:
+        if not response["data"]:
             return False
         game_id = response["data"][0]["game_id"]
         return game_id
@@ -75,7 +71,7 @@ class Stream():
         response = requests.get(
             'https://api.twitch.tv/helix/games', headers=headers, params=params).json()
         # If we get a bad API response, assume the game has not changed
-        if response.status != 200:
+        if not response["data"]:
             return self.game
         name = response["data"][0]["name"]
         return name
@@ -140,7 +136,7 @@ class NLSS():
         response = requests.get(
             'https://api.twitch.tv/helix/videos', headers=headers, params=params).json()
 
-        if response.status != 200:
+        if not response["data"]:
             self.vod = "https://www.twitch.tv/northernlion/videos"
             self.findClip()
 
@@ -159,7 +155,7 @@ class NLSS():
 
         params = (('broadcaster_id', "14371185"),("first", "1"),("started_at", date),)
         response = requests.get('https://api.twitch.tv/helix/clips', headers=headers, params=params).json()
-        if response.status != 200:
+        if not response["data"]:
             self.clip = "https://www.twitch.tv/northernlion/clips?filter=clips&range=24hr"
         else:
             for item in response["data"]:
