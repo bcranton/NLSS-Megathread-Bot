@@ -89,7 +89,7 @@ class Construct():
         past = "## Previous Mega Threads\n" + \
             "* [Yeet Yeet](https://www.reddit.com/r/northernlion/search?q=flair%3AMEGA+THREAD&sort=new&restrict_sr=on&t=a)"
 
-        footer = "\n\n^(Bot created by /u/AManNamedLear - find me on) ^[GitHub](https://github.com/bcranton/NLSS-Megathread-Bot)"
+        footer = "\n\n----------------------------------------------\n\n^(Bot created by /u/AManNamedLear! Find me on) ^[GitHub](https://github.com/bcranton/NLSS-Megathread-Bot)"
         # Mash 'em all together
         body = header + docket + guestBody + clip + vodText + past + footer
         self.body = body
