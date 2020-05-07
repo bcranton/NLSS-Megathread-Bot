@@ -117,4 +117,5 @@ def post(games, vod, guests, clip):
 
     post = subreddit.submit(content.getTitle(), selftext=content.getBody())
     post.mod.sticky()
+    post.mod.flair(text="[MEGA THREAD]")
     return True
