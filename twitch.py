@@ -25,12 +25,17 @@ def main():
     Northernlion = stream.Stream("Northernlion", False)
     NLSS = stream.NLSS([], [])
     online = False
-
+    startTime = None
     # Run infinitely, that way its always monitoring for streams
     print(f"Monitoring {Northernlion.getName()}")
     while True:
         # If the channel is live, we start monitoring for what games they are playing
         if Northernlion.liveCheck():
+            if not startTime:
+                NLSS.setStart()
+                startTime = NLSS.getStart()
+                print (startTime)
+
             online = True
             print("Finding current game...")
             Northernlion.setGame()
@@ -72,6 +77,7 @@ def main():
 
                 # Reset variables
                 online = False
+                startTime = None
                 for guest in guests:
                     del guest
                 del Northernlion

@@ -94,11 +94,15 @@ class NLSS():
     def __init__(self, docket, guests):
         self.docket = docket
         self.guests = guests
+
+    def setStart(self):
         date = datetime.datetime.utcnow()
         date = date.replace(second=0, microsecond=0)  # remove seconds
         date = date.isoformat("T") + "Z"  # convert to RFC3339
         self.startTime = date
 
+    def getStart(self):
+        return self.startTime
 
     def getVOD(self):
         return self.vod
@@ -165,8 +169,8 @@ class NLSS():
             return False
 
         else:
-            vod = response["data"][0]["url"]
-            self.vod = vod
+            self.vod = response["data"][0]["url"]
+            self.vodID = response["data"][0]["id"]
             self.findClip()
             return True
 
@@ -174,7 +178,7 @@ class NLSS():
         clip = {}
 
         params = (('broadcaster_id', "14371185"),
-                  ("first", "1"), ("started_at", self.startTime),)
+                  ("first", "1"), ("started_at", self.getStart()),)
 
         try:
             response = requests.get(
