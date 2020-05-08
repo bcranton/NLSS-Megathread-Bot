@@ -42,7 +42,7 @@ class Construct():
         elif day == "Tuesday":
             event = "NLSS Team Unity Tuesday Megathread"
 
-        elif day == "Friday" and "Super Mario Maker 2" in self.games:
+        elif day == "Friday" and "Super Mario Maker 2" in self.getGames():
             event = "Checkpoint League"
 
         else:
