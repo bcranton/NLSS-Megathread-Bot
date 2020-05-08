@@ -94,7 +94,11 @@ class NLSS():
     def __init__(self, docket, guests):
         self.docket = docket
         self.guests = guests
-        pass
+        date = datetime.datetime.utcnow()
+        date = date.replace(second=0, microsecond=0)  # remove seconds
+        date = date.isoformat("T") + "Z"  # convert to RFC3339
+        self.startTime = date
+
 
     def getVOD(self):
         return self.vod
@@ -167,15 +171,10 @@ class NLSS():
             return True
 
     def findClip(self):
-        date = datetime.datetime.utcnow()  # <-- get current time in UTC
-        date = date + datetime.timedelta(days=-0.5)  # this 12 hours ago
-        date = date.replace(second=0, microsecond=0)  # remove seconds
-        date = date.isoformat("T") + "Z"  # convert to RFC3339
-
         clip = {}
 
         params = (('broadcaster_id', "14371185"),
-                  ("first", "1"), ("started_at", date),)
+                  ("first", "1"), ("started_at", self.startTime),)
 
         try:
             response = requests.get(
