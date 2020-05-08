@@ -12,7 +12,7 @@ reddit_secret = os.environ.get("reddit_secret")
 reddit_password = os.environ.get("reddit_password")
 
 
-sub = "NLSSBotTest"
+sub = "Northernlion"
 
 
 class Construct():
@@ -41,6 +41,9 @@ class Construct():
 
         elif day == "Tuesday":
             event = "NLSS Team Unity Tuesday Megathread"
+
+        elif day == "Friday" and "Super Mario Maker 2" in self.games:
+            event = "Checkpoint League"
 
         else:
             event = "NLSS " + day + " Megathread"
